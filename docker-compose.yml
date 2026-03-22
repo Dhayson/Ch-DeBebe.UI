@@ -1,0 +1,43 @@
+version: "3.8"
+
+services:
+  db-postgres:
+    image: postgres:16-alpine # Versão Alpine é mais leve e segura
+    container_name: meuarquitetura-db
+    environment:
+      POSTGRES_USER: usuario_admin
+      POSTGRES_PASSWORD: SenhaSuperSegura123!
+      POSTGRES_DB: ChaDeBebeDb
+    ports:
+      - "5432:5432" # Mapeia a porta do container para o seu Linux host
+    volumes:
+      - postgres_data:/var/lib/postgresql/data # Persistência de dados
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: .
+      dockerfile: ChaDeBebe.Api/Dockerfile
+    container_name: api
+    environment:
+      - ASPNETCORE_HTTP_PORTS=5000
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Host=db-postgres;Database=ChaDeBebeDb;Username=usuario_admin;Password=SenhaSuperSegura123!
+    depends_on:
+      - db-postgres
+    ports:
+      - "5000:5000"
+
+  frontend:
+    build:
+      context: frontend
+    container_name: ui
+    ports:
+      - "5173:80"
+    environment:
+      - VITE_API_URL=http://localhost:5000
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
