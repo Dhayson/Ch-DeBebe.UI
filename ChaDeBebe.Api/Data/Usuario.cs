@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -7,6 +8,9 @@ public class Usuario
     public string Nome { get; init; } = string.Empty;
     public string Email { get; init; } = string.Empty;
     public string HashSenha { get; set; } = string.Empty;
+
+    [InverseProperty("Admin")]
+    public ICollection<ChaDeBebeEvento> MeusChas { get; set; } = new List<ChaDeBebeEvento>();
 
     // Construtor vazio para o Entity Framework
     protected Usuario() { }

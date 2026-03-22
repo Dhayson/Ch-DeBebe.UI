@@ -2,7 +2,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.2.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChaDeBebe.Api", "ChaDeBebe.Api\ChaDeBebe.Api.csproj", "{301C3940-BE0C-9D79-D947-6FFBD3FC28F2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChaDeBebe.Api", "ChaDeBebe.Api\ChaDeBebe.Api.csproj", "ChaDeBebe.Tests\ChaDeBebe.Tests.csproj", "{301C3940-BE0C-9D79-D947-6FFBD3FC28F2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

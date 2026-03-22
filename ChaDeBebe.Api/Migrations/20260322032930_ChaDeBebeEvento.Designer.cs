@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -10,9 +11,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ChaDeBebe.Api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260322032930_ChaDeBebeEvento")]
+    partial class ChaDeBebeEvento
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -74,8 +77,7 @@ namespace ChaDeBebe.Api.Migrations
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("character varying(150)");
+                        .HasColumnType("text");
 
                     b.Property<string>("HashSenha")
                         .IsRequired()
@@ -83,33 +85,11 @@ namespace ChaDeBebe.Api.Migrations
 
                     b.Property<string>("Nome")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Email")
-                        .IsUnique();
-
-                    b.ToTable("Usuarios", (string)null);
-                });
-
-            modelBuilder.Entity("UsuarioChaDeBebe", b =>
-                {
-                    b.Property<int>("UsuarioId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("ChaDeBebeId")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("ChaDeBebeEventoId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("UsuarioId", "ChaDeBebeId");
-
-                    b.HasIndex("ChaDeBebeEventoId");
-
-                    b.ToTable("UsuarioChaDeBebe");
+                    b.ToTable("Usuarios");
                 });
 
             modelBuilder.Entity("ChaDeBebeEvento", b =>
@@ -128,23 +108,6 @@ namespace ChaDeBebe.Api.Migrations
                     b.HasOne("ChaDeBebeEvento", null)
                         .WithMany("Presentes")
                         .HasForeignKey("ChaDeBebeEventoId");
-                });
-
-            modelBuilder.Entity("UsuarioChaDeBebe", b =>
-                {
-                    b.HasOne("ChaDeBebeEvento", "ChaDeBebeEvento")
-                        .WithMany()
-                        .HasForeignKey("ChaDeBebeEventoId");
-
-                    b.HasOne("Usuario", "Usuario")
-                        .WithMany()
-                        .HasForeignKey("UsuarioId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ChaDeBebeEvento");
-
-                    b.Navigation("Usuario");
                 });
 
             modelBuilder.Entity("ChaDeBebeEvento", b =>

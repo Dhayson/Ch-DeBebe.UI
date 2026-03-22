@@ -4,7 +4,8 @@ public static class RouteManager
 {
     public static void MapAllEndpoints(this IEndpointRouteBuilder app)
     {
+        app = app.MapGroup("/api");
         app.MapAuthEndpoints();
-        // app.MapProdutoEndpoints();
+        app.MapChaDeBebeEndpoints();
     }
 }

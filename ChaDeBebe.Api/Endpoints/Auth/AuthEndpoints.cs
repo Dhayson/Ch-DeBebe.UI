@@ -6,7 +6,7 @@ public static class AuthEndpoints
     // Injeção de dependência com IEndpointRouteBuilder
     public static void MapAuthEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/api/auth").WithTags("Autenticação");
+        var group = app.MapGroup("/auth").WithTags("Autenticação");
         group.MapPost("/cadastro", async (RegistroRequest req, AppDbContext db) =>
         {
             var service = new UsuarioService(db);
