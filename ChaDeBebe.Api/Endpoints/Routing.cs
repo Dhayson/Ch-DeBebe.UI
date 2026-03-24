@@ -7,5 +7,6 @@ public static class RouteManager
         app = app.MapGroup("/api");
         app.MapAuthEndpoints();
         app.MapChaDeBebeEndpoints();
+        app.MapPresenteEndpoints();
     }
 }

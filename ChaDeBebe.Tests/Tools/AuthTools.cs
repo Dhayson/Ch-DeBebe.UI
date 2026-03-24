@@ -41,4 +41,16 @@ public static class AuthTools
             "SenhaForte123!"
         );
     }
+
+    public static async Task<(string, int)> FluxoCriarCha(HttpClient _client)
+    {
+        string token = await FluxoAuth(_client);
+        _client.DefaultRequestHeaders.Authorization = new("Bearer", token);
+        var novoCha = new { Nome = "Chá da Alice", DataEvento = DateTime.Now.AddDays(15) };
+        var responseCriar = await _client.PostAsJsonAsync("/api/cha_de_bebe/criar", novoCha);
+        Assert.Equal(HttpStatusCode.Created, responseCriar.StatusCode);
+
+        var chaCriado = await responseCriar.Content.ReadFromJsonAsync<ChaDeBebeResponse>();
+        return (token, chaCriado!.Id);
+    }
 }

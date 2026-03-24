@@ -34,4 +34,6 @@ public class UsuarioChaDeBebe
 
     public int ChaDeBebeId { get; set; }
     public ChaDeBebeEvento? ChaDeBebeEvento { get; set; }
+    // Reservas que esse Usuario fez nesse ChaDeBebe
+    public ICollection<Reserva> Reservas { get; set; } = new List<Reserva>();
 }

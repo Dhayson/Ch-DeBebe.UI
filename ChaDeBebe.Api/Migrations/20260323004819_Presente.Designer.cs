@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -10,9 +11,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ChaDeBebe.Api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260323004819_Presente")]
+    partial class Presente
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -70,9 +73,6 @@ namespace ChaDeBebe.Api.Migrations
                     b.Property<string>("PathImage")
                         .HasColumnType("text");
 
-                    b.Property<decimal>("Preco")
-                        .HasColumnType("numeric");
-
                     b.Property<decimal>("QuantidadeTotal")
                         .HasColumnType("numeric");
 
@@ -100,8 +100,8 @@ namespace ChaDeBebe.Api.Migrations
                     b.Property<int>("PresenteId")
                         .HasColumnType("integer");
 
-                    b.Property<decimal>("Quantidade")
-                        .HasColumnType("numeric");
+                    b.Property<int>("Quantidade")
+                        .HasColumnType("integer");
 
                     b.Property<int?>("UsuarioChaDeBebeChaDeBebeId")
                         .HasColumnType("integer");
