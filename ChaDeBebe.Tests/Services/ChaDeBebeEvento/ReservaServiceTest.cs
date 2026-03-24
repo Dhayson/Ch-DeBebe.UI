@@ -30,7 +30,7 @@ namespace ChaDeBebe.Tests.Services.ChaDeBebeEvento
             _chaDeBebeService = new ChaDeBebeService(_db);
         }
 
-        public async Task<int> CriarChaDeBebeComPresentes(int adminId, string Nome)
+        public async Task<(int, IList<Presente?>)> CriarChaDeBebeComPresentes(int adminId, string Nome)
         {
             var request = new CriarChaDeBebeDTO(Nome, DateTime.Now.AddDays(30));
 
@@ -39,55 +39,61 @@ namespace ChaDeBebe.Tests.Services.ChaDeBebeEvento
             var presente2 = new PresenteDTO("Carrinho", null, null, null, resultado!.Id, 1m, 20m);
             var presente3 = new PresenteDTO("Fraldas", null, null, null, resultado!.Id, 30m, 1m);
 
-            await _presenteService.AdicionarPresenteAsync(adminId, resultado!.Id, presente1);
-            await _presenteService.AdicionarPresenteAsync(adminId, resultado!.Id, presente2);
-            await _presenteService.AdicionarPresenteAsync(adminId, resultado!.Id, presente3);
+            (var presente1_, _, _) = await _presenteService.AdicionarPresenteAsync(adminId, resultado!.Id, presente1);
+            (var presente2_, _, _) = await _presenteService.AdicionarPresenteAsync(adminId, resultado!.Id, presente2);
+            (var presente3_, _, _) = await _presenteService.AdicionarPresenteAsync(adminId, resultado!.Id, presente3);
 
-            return resultado!.Id;
+            return (resultado!.Id, [presente1_, presente2_, presente3_]);
         }
         [Fact]
         public async Task CriarReserva_ComDadosValidos_DeveRetornarSucesso()
         {
             int userId = 2;
-            int chaDeBebeId = await CriarChaDeBebeComPresentes(userId, "Cha de Bebe Teste");
+            (int chaDeBebeId, var presentes) = await CriarChaDeBebeComPresentes(userId, "Cha de Bebe Teste");
             await _chaDeBebeService.Entrar(chaDeBebeId, 1);
 
-            var criarReservaDTO = new ReservaDTO(1m, DateTime.Now, 1, chaDeBebeId, 3);
+            var criarReservaDTO = new ReservaDTO(1m, DateTime.Now, 1, chaDeBebeId, presentes[2]!.Id);
             (var resultado, string error, int code) = await _ReservaService.AdicionarReservaAsync(criarReservaDTO);
             Assert.Equal(200, code);
             Assert.NotNull(resultado);
             Assert.Equal(1m, resultado.Quantidade);
             var presente = resultado.Presente!;
-            Assert.Equal(1, presente.Reservas.Count);
+            Assert.Equal(1, presente!.Reservas.Count);
             Assert.Equal(29m, presente.QuantidadeRestante);
-
+            var presente_db = await _db.Presentes.FindAsync(resultado.Presente!.Id);
+            Assert.Equal(1, presente_db!.Reservas.Count);
+            Assert.Equal(29m, presente_db.QuantidadeRestante);
         }
 
         [Fact]
         public async Task DeletarReserva_ComIdValido_DeveRetornarSucesso()
         {
+            int adminId = 1;
             int userId = 2;
-            int chaDeBebeId = await CriarChaDeBebeComPresentes(userId, "Cha de Bebe Teste");
-            await _chaDeBebeService.Entrar(chaDeBebeId, 1);
+            (int chaDeBebeId, var presentes) = await CriarChaDeBebeComPresentes(adminId, "Cha de Bebe Teste");
+            await _chaDeBebeService.Entrar(chaDeBebeId, userId);
 
-            var criarReservaDTO = new ReservaDTO(1m, DateTime.Now, 1, chaDeBebeId, 3);
+            var criarReservaDTO = new ReservaDTO(1m, DateTime.Now, userId, chaDeBebeId, presentes[1]!.Id);
             (var resultado, string error, int code) = await _ReservaService.AdicionarReservaAsync(criarReservaDTO);
             Assert.Equal(200, code);
             Assert.NotNull(resultado);
+            Assert.NotEqual(0, resultado!.Id);
 
-            (var resultado2, string error2, int code2) = await _ReservaService.DeletarReservaAsync(resultado!.Id);
-
+            (var resultado2, string error2, int code2) = await _ReservaService.DeletarReservaAsync(resultado!.Id, userId);
             Assert.True(resultado2);
+
+            var presenteAfterDelete = await _db.Presentes.FirstOrDefaultAsync(p => p.Id == presentes[1]!.Id);
+            Assert.Empty(presenteAfterDelete!.Reservas);
         }
 
         [Fact]
         public async Task CriarReserva_ComQuantidadeInsuficiente_DeveRetornarErro()
         {
             int userId = 2;
-            int chaDeBebeId = await CriarChaDeBebeComPresentes(userId, "Cha de Bebe Teste");
+            (int chaDeBebeId, var presentes) = await CriarChaDeBebeComPresentes(userId, "Cha de Bebe Teste");
             await _chaDeBebeService.Entrar(chaDeBebeId, 1);
 
-            var criarReservaDTO = new ReservaDTO(100m, DateTime.Now, 1, chaDeBebeId, 3);
+            var criarReservaDTO = new ReservaDTO(100m, DateTime.Now, 1, chaDeBebeId, presentes[1]!.Id);
             (var resultado, string error, int code) = await _ReservaService.AdicionarReservaAsync(criarReservaDTO);
 
             Assert.Null(resultado);

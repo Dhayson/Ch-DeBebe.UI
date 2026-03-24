@@ -28,7 +28,7 @@ public class ReservaService
             return (null, "Usuário não faz parte desse Chá de Bebê", 400);
         }
 
-        Presente? presente = await _db.Presentes.FirstAsync(
+        Presente? presente = await _db.Presentes.FirstOrDefaultAsync(
             p => p.Id == presenteId && p.ChaDeBebeEventoId == chaDeBebeEventoId);
         if (presente == null)
         {
@@ -54,10 +54,11 @@ public class ReservaService
         _db.Presentes.Update(presente);
 
         await _db.SaveChangesAsync();
+        reserva = await _db.Reservas.FindAsync(reserva.Id);
 
         return (reserva, "Reserva criada com sucesso", 200);
     }
-    public async Task<(bool, string, int)> DeletarReservaAsync(int ReservaId)
+    public async Task<(bool, string, int)> DeletarReservaAsync(int ReservaId, int usuarioId)
     {
         (bool, string, int) returnValue;
         var reserva = await _db.Reservas.FirstOrDefaultAsync(r => r.Id == ReservaId);
@@ -65,16 +66,20 @@ public class ReservaService
         {
             return (false, "Reserva não encontrada", 404);
         }
+        if (reserva.UsuarioId != usuarioId)
+        {
+            return (false, "Reserva não é desse usuário", 400);
+        }
 
         var presente = await _db.Presentes.FirstOrDefaultAsync(p => p.Id == reserva.PresenteId);
         if (presente == null)
         {
-            returnValue = (true, "Reserva encontrada mas presente não encontrado", 200);
+            returnValue = (true, "Reserva encontrada mas presente não encontrado", 204);
         }
         else
         {
             _db.Presentes.Update(presente);
-            returnValue = (true, "Reserva deletada com sucesso", 200);
+            returnValue = (true, "Reserva deletada com sucesso", 204);
         }
         _db.Reservas.Remove(reserva);
         await _db.SaveChangesAsync();

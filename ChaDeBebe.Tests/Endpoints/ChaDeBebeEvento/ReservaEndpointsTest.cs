@@ -19,14 +19,61 @@ public class ReservaEndpointsTests : IClassFixture<IntegrationTestFactory>
     [Fact]
     public async Task CriarReserva_FluxoCompleto()
     {
-        (var token, var chaId) = await AuthTools.FluxoCriarChaCompletoComPresentes(_client, "Chá do Edu");
-        var reservaRequest = new ReservaDTO(1m, DateTime.Now, 2, chaId, 1);
+        (var token, var chaId, var presenteIds) = await AuthTools.FluxoCriarChaCompletoComPresentes(_client, "Chá do Edu");
+        var reservaRequest = new ReservaDTO(1m, DateTime.Now, 2, chaId, presenteIds[1]);
         var response = await _client.PostAsJsonAsync("/api/reserva/adicionar", reservaRequest);
         response.StatusCode.Should().Be(HttpStatusCode.Created);
         var reserva = await response.Content.ReadFromJsonAsync<ReservaResponse>();
         reserva.Should().NotBeNull();
     }
-    // TODO: mais testes
+    [Fact]
+    public async Task CriarReserva_SemAutorizacao_RetornaUnauthorized()
+    {
+        var reservaRequest = new ReservaDTO(1m, DateTime.Now, 2, 1, 1);
+        var response = await _client.PostAsJsonAsync("/api/reserva/adicionar", reservaRequest);
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
+    [Fact]
+    public async Task CriarReserva_UsuarioIdNaoCorresponde_RetornaUnauthorized()
+    {
+        (var token, var chaId, var presenteIds) = await AuthTools.FluxoCriarChaCompletoComPresentes(_client, "Chá da Letícia");
+        var reservaRequest = new ReservaDTO(1m, DateTime.Now, 999, chaId, 999);
+        var response = await _client.PostAsJsonAsync("/api/reserva/adicionar", reservaRequest);
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
+    [Fact]
+    public async Task CriarReserva_PresenteIdNaoCorresponde_RetornaNotFound()
+    {
+        (var token, var chaId, var presenteIds) = await AuthTools.FluxoCriarChaCompletoComPresentes(_client, "Chá do Leo");
+        var reservaRequest = new ReservaDTO(1m, DateTime.Now, 2, chaId, 999);
+        var response = await _client.PostAsJsonAsync("/api/reserva/adicionar", reservaRequest);
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task DeletarReserva_FluxoCompleto()
+    {
+        (var token, var chaId, var presenteIds) = await AuthTools.FluxoCriarChaCompletoComPresentes(_client, "Chá do Rafael");
+        var reservaRequest = new ReservaDTO(1m, DateTime.Now, 2, chaId, presenteIds[1]);
+        _client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+        var createResponse = await _client.PostAsJsonAsync("/api/reserva/adicionar", reservaRequest);
+        createResponse.StatusCode.Should().Be(HttpStatusCode.Created);
+        var reserva = await createResponse.Content.ReadFromJsonAsync<ReservaResponse>();
+
+        var deleteResponse = await _client.DeleteAsync($"/api/reserva/deletar/{reserva!.Id}");
+        deleteResponse.StatusCode.Should().Be(HttpStatusCode.NoContent);
+    }
+
+    [Fact]
+    public async Task DeletarReserva_IdInexistente_RetornaErro()
+    {
+        (var token, var chaId, var presenteIds) = await AuthTools.FluxoCriarChaCompletoComPresentes(_client, "Chá do Carlos");
+        _client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+        var response = await _client.DeleteAsync("/api/reserva/deletar/99999");
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
 }
 
 

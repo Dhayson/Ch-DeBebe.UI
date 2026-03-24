@@ -24,6 +24,17 @@ public static class ReservaEndpoints
             }
             return Results.Created($"/api/reserva/{result!.Id}", result);
         }).RequireAuthorization();
-        // TODO endpoint deletar
+
+        group.MapDelete("/deletar/{id}", [Authorize] async (int id, ClaimsPrincipal user, AppDbContext db, IConfiguration config) =>
+        {
+            var usuarioId = int.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var service = new ReservaService(db, config);
+            (var success, string error, int code) = await service.DeletarReservaAsync(id, usuarioId);
+            if (code != 204)
+            {
+                return Results.Json(new { Message = error }, JsonSerializerOptions.Default, null, code);
+            }
+            return Results.NoContent();
+        }).RequireAuthorization();
     }
 }
