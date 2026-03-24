@@ -6,10 +6,12 @@ using System.Threading.Tasks;
 public class PresenteService
 {
     private readonly AppDbContext _db;
+    private readonly IConfiguration _config;
 
-    public PresenteService(AppDbContext db)
+    public PresenteService(AppDbContext db, IConfiguration config)
     {
         _db = db;
+        _config = config;
     }
 
     public async Task<(Presente?, string, int)> AdicionarPresenteAsync(int AdminId, int ChaDeBebeEventoId, PresenteDTO presente)
@@ -40,6 +42,36 @@ public class PresenteService
         return (novoPresente, "Presente adicionado com sucesso", 201);
     }
 
+    public async Task<(Presente?, string, int)> AtualizarPresenteAsync(
+        int AdminId,
+        int ChaDeBebeEventoId,
+        int presenteId,
+        PresenteDTO presente
+    )
+    {
+        var cha = await _db.ChasDeBebe.FindAsync(ChaDeBebeEventoId);
+        if (cha == null || cha.AdminId != AdminId)
+        {
+            return (null, "Não Autorizado", 400);
+        }
+
+        var presenteExistente = await _db.Presentes.FindAsync(presenteId);
+        if (presenteExistente == null)
+        {
+            return (null, "Não Encontrado", 404);
+        }
+        presenteExistente.Nome = presente.Nome ?? presenteExistente.Nome;
+        presenteExistente.Descricao = presente.Descricao ?? presenteExistente.Descricao;
+        presenteExistente.Preco = presente.Preco > 0 ? presente.Preco : presenteExistente.Preco;
+        presenteExistente.LinkSugerido = presente.LinkSugerido ?? presenteExistente.LinkSugerido;
+        presenteExistente.QuantidadeTotal = presente.QuantidadeTotal > 0 ? presente.QuantidadeTotal : presenteExistente.QuantidadeTotal;
+
+        _db.Presentes.Update(presenteExistente);
+        await _db.SaveChangesAsync();
+
+        return (presenteExistente, "Presente atualizado com sucesso", 201);
+    }
+
     public async Task<(bool, string, int)> RemoverPresenteAsync(int AdminId, int ChaDeBebeEventoId, int presenteId)
     {
         var cha = await _db.ChasDeBebe.FindAsync(ChaDeBebeEventoId);
@@ -58,5 +90,52 @@ public class PresenteService
         await _db.SaveChangesAsync();
 
         return (true, "Presente Deletado", 204);
+    }
+
+    public async Task<(string?, string, int)> AdicionarImagemPresenteAsync(
+        int AdminId,
+        int ChaDeBebeEventoId,
+        int presenteId,
+        IFormFile imagem
+    )
+    {
+        var cha = await _db.ChasDeBebe.FindAsync(ChaDeBebeEventoId);
+        if (cha == null || cha.AdminId != AdminId)
+        {
+            return (null, "Não Autorizado", 400);
+        }
+
+        var presenteExistente = await _db.Presentes.FindAsync(presenteId);
+        if (presenteExistente == null)
+        {
+            return (null, "Não Encontrado", 404);
+        }
+
+        if (imagem.Length == 0) return (null, "Arquivo vazio.", 400);
+
+        var extensoesPermitidas = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+        var extensao = Path.GetExtension(imagem.FileName).ToLowerInvariant();
+
+        if (!extensoesPermitidas.Contains(extensao))
+            return (null, "Formato de imagem inválido.", 400);
+
+        var storagePath = _config["StorageConfig:Path"] ?? "uploads/presentes";
+        if (!Directory.Exists(storagePath)) Directory.CreateDirectory(storagePath);
+
+        // Geramos um nome único para evitar conflitos e cache antigo
+        var nomeArquivo = $"presente_{presenteId}_{Guid.NewGuid()}{extensao}";
+        var caminhoCompleto = Path.Combine(storagePath, nomeArquivo);
+
+        using (var stream = new FileStream(caminhoCompleto, FileMode.Create))
+        {
+            await imagem.CopyToAsync(stream);
+        }
+
+        // 4. Atualização do Banco de Dados
+        // Se já existia uma foto antiga, você pode opcionalmente deletar o arquivo aqui
+        presenteExistente.PathImage = nomeArquivo;
+        await _db.SaveChangesAsync();
+
+        return (caminhoCompleto, "Sucesso", 200);
     }
 }

@@ -10,3 +10,6 @@ frontend
 *.txt
 package*
 **/Prototype
+
+# Data
+/ChaDeBebe.Api/app

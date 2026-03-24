@@ -4,12 +4,14 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using System.Runtime.CompilerServices;
+using Microsoft.Extensions.Configuration;
 
 namespace ChaDeBebe.Tests.Services.ChaDeBebeEvento
 {
     public class PresenteServiceTest
     {
         private readonly AppDbContext _db;
+        private readonly IConfiguration _config;
         private readonly PresenteService _presenteService;
         private readonly ChaDeBebeService _chaDeBebeService;
 
@@ -21,7 +23,8 @@ namespace ChaDeBebe.Tests.Services.ChaDeBebeEvento
                 .Options;
 
             _db = new AppDbContext(options);
-            _presenteService = new PresenteService(_db);
+            _config = new ConfigurationBuilder().Build();
+            _presenteService = new PresenteService(_db, _config);
             _chaDeBebeService = new ChaDeBebeService(_db);
         }
 

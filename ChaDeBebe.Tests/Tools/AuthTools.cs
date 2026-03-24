@@ -44,9 +44,14 @@ public static class AuthTools
 
     public static async Task<(string, int)> FluxoCriarCha(HttpClient _client)
     {
+        return await FluxoCriarChaCompleto(_client, "Chá da Alice");
+    }
+
+    public static async Task<(string, int)> FluxoCriarChaCompleto(HttpClient _client, string nome)
+    {
         string token = await FluxoAuth(_client);
         _client.DefaultRequestHeaders.Authorization = new("Bearer", token);
-        var novoCha = new { Nome = "Chá da Alice", DataEvento = DateTime.Now.AddDays(15) };
+        var novoCha = new { Nome = nome, DataEvento = DateTime.Now.AddDays(15) };
         var responseCriar = await _client.PostAsJsonAsync("/api/cha_de_bebe/criar", novoCha);
         Assert.Equal(HttpStatusCode.Created, responseCriar.StatusCode);
 

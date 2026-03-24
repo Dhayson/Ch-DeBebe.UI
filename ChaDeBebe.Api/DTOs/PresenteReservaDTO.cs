@@ -15,7 +15,7 @@ public record PresenteDTO(
     decimal Preco
 );
 
-public record DelPresenteDTO(
+public record ReqPresenteDTO(
     [Required]
     int ChaDeBebeEventoId,
     [Required]
