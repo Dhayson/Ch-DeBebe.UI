@@ -58,4 +58,50 @@ public static class AuthTools
         var chaCriado = await responseCriar.Content.ReadFromJsonAsync<ChaDeBebeResponse>();
         return (token, chaCriado!.Id);
     }
+
+    public static async Task FluxoCriarPresente(HttpClient _client, string Nome, string desc, int chaId, decimal quantidade, decimal preco)
+    {
+        var presenteDto = new PresenteDTO(
+            Nome,
+            desc,
+            null,
+            null,
+            chaId,
+            500.00m,
+            1m
+        );
+        var createResponse = await _client.PostAsJsonAsync(
+            "/api/presente/adicionar",
+            presenteDto
+        );
+        var createdPresente = await createResponse.Content.ReadFromJsonAsync<Presente>();
+        var presenteId = createdPresente?.Id ?? 0;
+        Assert.NotEqual(0, presenteId);
+    }
+
+    public static async Task<(string, int)> FluxoCriarChaCompletoComPresentes(HttpClient _client, string nome)
+    {
+        string token = await FluxoAuth(_client);
+        _client.DefaultRequestHeaders.Authorization = new("Bearer", token);
+        var novoCha = new { Nome = nome, DataEvento = DateTime.Now.AddDays(15) };
+        var responseCriar = await _client.PostAsJsonAsync("/api/cha_de_bebe/criar", novoCha);
+        Assert.Equal(HttpStatusCode.Created, responseCriar.StatusCode);
+
+        var chaCriado = await responseCriar.Content.ReadFromJsonAsync<ChaDeBebeResponse>();
+
+        await FluxoCriarPresente(_client, "Presente 1", "Descrição 1", chaCriado!.Id, 1m, 500.00m);
+        await FluxoCriarPresente(_client, "Presente 2", "Descrição 2", chaCriado!.Id, 1m, 400.00m);
+        await FluxoCriarPresente(_client, "Presente 3", "Descrição 3", chaCriado!.Id, 30m, 300.00m);
+        await FluxoCriarPresente(_client, "Presente 4", "Descrição 4", chaCriado!.Id, 10m, 200.00m);
+        await FluxoCriarPresente(_client, "Presente 5", "Descrição 5", chaCriado!.Id, 1m, 100.00m);
+
+        // Trocar para conta de usuário
+        string token2 = await FluxoAuth(_client, "User teste", "User@email.com", "123");
+        _client.DefaultRequestHeaders.Authorization = new("Bearer", token2);
+
+        var responseEntrar = await _client.PostAsync($"/api/cha_de_bebe/entrar/{chaCriado.Id}", null);
+        Assert.Equal(HttpStatusCode.Accepted, responseEntrar.StatusCode);
+
+        return (token, chaCriado!.Id);
+    }
 }

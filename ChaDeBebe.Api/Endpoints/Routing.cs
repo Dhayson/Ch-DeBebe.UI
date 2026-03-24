@@ -8,5 +8,6 @@ public static class RouteManager
         app.MapAuthEndpoints();
         app.MapChaDeBebeEndpoints();
         app.MapPresenteEndpoints();
+        app.MapReservaEndpoints();
     }
 }

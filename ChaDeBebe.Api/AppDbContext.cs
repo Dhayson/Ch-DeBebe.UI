@@ -6,6 +6,7 @@ public class AppDbContext : DbContext
     public DbSet<Usuario> Usuarios { get; set; }
     public DbSet<ChaDeBebeEvento> ChasDeBebe { get; set; }
     public DbSet<Presente> Presentes { get; set; }
+    public DbSet<Reserva> Reservas { get; set; }
     public DbSet<UsuarioChaDeBebe> UsuarioChaDeBebe { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

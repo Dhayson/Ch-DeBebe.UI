@@ -19,3 +19,11 @@ public record ReqPresenteDTO(
     [Required]
     int presenteId
 );
+
+public record ReservaDTO(
+    decimal Quantidade,
+    DateTime DataReserva,
+    int UsuarioId,
+    int ChaDeBebeEventoId,
+    int PresenteId
+);
