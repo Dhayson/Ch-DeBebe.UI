@@ -9,10 +9,8 @@ public record PresenteDTO(
 
     [Required]
     int ChaDeBebeEventoId,
-    [Required]
-    decimal QuantidadeTotal,
-    [Required]
-    decimal Preco
+    decimal? QuantidadeTotal,
+    decimal? Preco
 );
 
 public record ReqPresenteDTO(

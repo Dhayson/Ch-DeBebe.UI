@@ -29,11 +29,11 @@ public class PresenteService
         {
             Nome = presente.Nome,
             Descricao = presente.Descricao,
-            Preco = presente.Preco,
+            Preco = presente.Preco ?? 0,
             ChaDeBebeEventoId = ChaDeBebeEventoId,
             LinkSugerido = presente.LinkSugerido,
             PathImage = presente.PathImage,
-            QuantidadeTotal = presente.QuantidadeTotal,
+            QuantidadeTotal = presente.QuantidadeTotal ?? 0,
         };
 
         _db.Presentes.Add(novoPresente);
@@ -62,9 +62,9 @@ public class PresenteService
         }
         presenteExistente.Nome = presente.Nome ?? presenteExistente.Nome;
         presenteExistente.Descricao = presente.Descricao ?? presenteExistente.Descricao;
-        presenteExistente.Preco = presente.Preco > 0 ? presente.Preco : presenteExistente.Preco;
+        presenteExistente.Preco = presente.Preco > 0 ? (presente.Preco ?? 0) : presenteExistente.Preco;
         presenteExistente.LinkSugerido = presente.LinkSugerido ?? presenteExistente.LinkSugerido;
-        presenteExistente.QuantidadeTotal = presente.QuantidadeTotal > 0 ? presente.QuantidadeTotal : presenteExistente.QuantidadeTotal;
+        presenteExistente.QuantidadeTotal = presente.QuantidadeTotal > 0 ? (presente.QuantidadeTotal ?? 0) : presenteExistente.QuantidadeTotal;
 
         _db.Presentes.Update(presenteExistente);
         await _db.SaveChangesAsync();

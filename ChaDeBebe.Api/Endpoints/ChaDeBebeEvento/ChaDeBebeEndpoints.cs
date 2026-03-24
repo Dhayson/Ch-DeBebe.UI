@@ -8,7 +8,7 @@ public static class ChaDeBebeEndpoints
 {
     public static void MapChaDeBebeEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/cha_de_bebe");
+        var group = app.MapGroup("/cha_de_bebe").WithTags("Chá de Bebê");
         // Usa ClaimsPrincipal para recuperar o Id do token JWT
         group.MapPost("/criar", [Authorize] async (CriarChaDeBebeDTO req, ClaimsPrincipal user, AppDbContext db) =>
         {

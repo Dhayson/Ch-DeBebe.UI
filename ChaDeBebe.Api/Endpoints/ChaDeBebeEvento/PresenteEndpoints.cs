@@ -8,7 +8,7 @@ public static class PresenteEndpoints
 {
     public static void MapPresenteEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/presente");
+        var group = app.MapGroup("/presente").WithTags("Presentes");
         // Usa ClaimsPrincipal para recuperar o Id do token JWT
         group.MapPost("/adicionar", [Authorize] async (PresenteDTO req, ClaimsPrincipal user, AppDbContext db, IConfiguration config) =>
         {
