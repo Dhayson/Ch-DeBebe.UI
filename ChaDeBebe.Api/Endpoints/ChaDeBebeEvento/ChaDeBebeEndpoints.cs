@@ -39,5 +39,44 @@ public static class ChaDeBebeEndpoints
             }
             return Results.Accepted($"/api/cha/{cha!.Id}", new { error, chaDeBebe = cha });
         }).RequireAuthorization();
+
+        group.MapGet("/meus_chas", [Authorize] async (AppDbContext db, ClaimsPrincipal user) =>
+        {
+            var adminId = int.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+            var meusChas = await db.ChasDeBebe.AsNoTracking()
+                .Where(c => c.AdminId == adminId)
+                .Select(c => new
+                {
+                    c.Id,
+                    c.Nome,
+                    c.DataEvento,
+                    QtdPresentes = c.Presentes.Count // Exemplo de contagem rápida
+                })
+                .ToListAsync();
+
+            return Results.Ok(meusChas);
+        }).RequireAuthorization();
+
+        group.MapGet("/chas_inscrito", [Authorize] async (AppDbContext db, ClaimsPrincipal user) =>
+        {
+            var adminId = int.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+            var meusChas = await db.UsuarioChaDeBebe.AsNoTracking()
+                .Where(u => u.UsuarioId == adminId)
+                .Select(u => new
+                {
+                    u.ChaDeBebe!.Id,
+                    u.ChaDeBebe!.AdminId,
+                    Admin = u.ChaDeBebe!.Admin!.Nome,
+                    AdminEmail = u.ChaDeBebe!.Admin!.Email,
+                    u.ChaDeBebe!.Nome,
+                    u.ChaDeBebe!.DataEvento,
+                    QtdPresentes = u.ChaDeBebe!.Presentes.Count // Exemplo de contagem rápida
+                })
+                .ToListAsync();
+
+            return Results.Ok(meusChas);
+        }).RequireAuthorization();
     }
 }

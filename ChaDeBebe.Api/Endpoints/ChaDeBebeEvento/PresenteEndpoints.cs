@@ -74,5 +74,33 @@ public static class PresenteEndpoints
             }
             return Results.Ok(result);
         }).RequireAuthorization().DisableAntiforgery();
+
+        group.MapGet("/presentes_cha", async (int chaDeBebeId, AppDbContext db, ClaimsPrincipal user) =>
+        {
+            var meusChas = await db.ChasDeBebe.AsNoTracking()
+                .Where(c => c.Id == chaDeBebeId)
+                .Select(c => new
+                {
+                    c.Id,
+                    c.Nome,
+                    c.AdminId,
+                    c.DataEvento,
+                    Presentes = c.Presentes.Select(p => new
+                    {
+                        p.Id,
+                        p.Nome,
+                        p.Descricao,
+                        p.LinkSugerido,
+                        p.PathImage,
+                        p.Preco,
+                        p.QuantidadeTotal,
+                        // WORKAROUND: É necessário chamar aqui ao invés da propriedade para evitar inconsistência
+                        QuantidadeRestante = p.QuantidadeTotal - p.Reservas.Sum(r => r.Quantidade)
+                    }),
+                })
+                .ToListAsync();
+
+            return Results.Ok(meusChas);
+        });
     }
 }

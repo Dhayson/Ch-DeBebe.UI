@@ -36,5 +36,49 @@ public static class ReservaEndpoints
             }
             return Results.NoContent();
         }).RequireAuthorization();
+
+
+        group.MapGet("/reservas_cha", async (int chaDeBebeId, AppDbContext db, ClaimsPrincipal user) =>
+        {
+            var reservas = await db.Reservas.AsNoTracking()
+                .Where(r => r.ChaDeBebeEventoId == chaDeBebeId)
+                .Select(r => new
+                {
+                    r.Id,
+                    r.DataReserva,
+                    r.Quantidade,
+                    r.UsuarioId,
+                    r.PresenteId,
+                })
+                .ToListAsync();
+
+            return Results.Ok(reservas);
+        });
+
+        group.MapGet("/reservas_presente", async (int presenteId, AppDbContext db, ClaimsPrincipal user) =>
+        {
+            var reservas = await db.Presentes.AsNoTracking()
+                .Include(p => p.Reservas)
+                .Where(p => p.Id == presenteId)
+                .Select(p => new
+                {
+                    p.Id,
+                    p.ChaDeBebeEventoId,
+                    p.EstaEsgotado,
+                    p.QuantidadeTotal,
+                    p.QuantidadeRestante,
+                    Reservas = p.Reservas.Select(r => new
+                    {
+                        r.Id,
+                        r.Quantidade,
+                        r.DataReserva,
+                        r.UsuarioId,
+                        NomeUsuario = r.Usuario!.Nome
+                    }),
+                })
+                .ToListAsync();
+
+            return Results.Ok(reservas);
+        });
     }
 }
