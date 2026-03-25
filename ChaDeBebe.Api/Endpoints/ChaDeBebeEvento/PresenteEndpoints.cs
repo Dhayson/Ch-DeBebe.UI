@@ -98,7 +98,7 @@ public static class PresenteEndpoints
                         QuantidadeRestante = p.QuantidadeTotal - p.Reservas.Sum(r => r.Quantidade)
                     }),
                 })
-                .ToListAsync();
+                .FirstOrDefaultAsync();
 
             return Results.Ok(meusChas);
         });

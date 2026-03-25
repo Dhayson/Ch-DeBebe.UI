@@ -1,4 +1,12 @@
 <script setup lang="ts">
+import { computed } from 'vue';
+import { useRoute } from 'vue-router';
+import AppTopbar from './components/AppTopbar.vue';
+
+const route = useRoute();
+const showMenu = computed(() => {
+    return !['/login', '/cadastro'].includes(route.path);
+});
 </script>
 
 <!-- <template>
@@ -17,12 +25,36 @@
 </template> -->
 
 <template>
-    <Toast /> 
-    
-    <router-view />
+    <div class="layout-wrapper">
+        <Toast />
+        <ConfirmDialog />
+        <AppTopbar v-if="showMenu" />
+        <main :class="{ 'p-4': showMenu }">
+            <router-view />
+        </main>
+    </div>
 </template>
 
 <style scoped>
+body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background-color: var(--surface-ground);
+    font-family: var(--font-family);
+    overflow-x: hidden;
+}
+
+.content-area {
+    margin-top: 4rem; /* Altura aproximada do Menubar */
+    padding: 2rem;
+}
+
+.layout-content {
+    /* Ajuste isso se você usar header fixo (sticky) */
+    margin-top: 0.5rem; 
+}
+
 header {
   line-height: 1.5;
 }

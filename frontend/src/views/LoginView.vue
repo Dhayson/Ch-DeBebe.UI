@@ -12,6 +12,8 @@ const loading = ref(false);
 const email = ref('');
 const password = ref('');
 
+const redirectCode = sessionStorage.getItem('returnToInvite');
+
 const handleLogin = async () => {
     console.log("Tentando login com:", email.value);
     if (!email.value || !password.value) {
@@ -21,7 +23,7 @@ const handleLogin = async () => {
 
     loading.value = true;
     try {
-        // Envia para o seu backend .NET
+        // Envia para o backend .NET
         const response = await api.post('http://localhost:5000/api/auth/login', {
             email: email.value,
             senha: password.value
@@ -29,11 +31,17 @@ const handleLogin = async () => {
 
         // Guarda o JWT que o C# gerou
         localStorage.setItem('token', response.data.token);
+        localStorage.setItem('usuarioId', response.data.usuario.id);
         
         toast.add({ severity: 'success', summary: 'Login realizado', detail: 'Bem-vindo de volta!', life: 3000 });
         
         // Redireciona para a lista de chás
-        router.push('/dashboard'); 
+        if (redirectCode) {
+            sessionStorage.removeItem('returnToInvite');
+            router.push(`/convite/${redirectCode}`);
+        } else {
+            router.push('/dashboard');
+        }
     } catch (error) {
         const mensagem = error.response?.data?.message || 'E-mail ou senha inválidos';
         toast.add({ severity: 'error', summary: 'Falha no Login', detail: mensagem, life: 5000 });

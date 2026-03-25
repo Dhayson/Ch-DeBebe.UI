@@ -23,6 +23,22 @@ const router = createRouter({
       component: () => import('../views/DashboardView.vue'),
       // Metadado para indicar que esta rota precisa de login
       meta: { requiresAuth: true }
+    },
+    {
+      path: '/gerenciar/:id',
+      name: 'GerenciarCha',
+      component: () => import('../views/GerenciarChaView.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/convite/:codigo',
+      name: 'Convite',
+      component: () => import('../views/ConviteView.vue')
+    },
+    {
+      path: '/cha_de_bebe/:id',
+      name: 'VisualizarCha',
+      component: () => import('../views/VisualizarChaView.vue')
     }
   ]
 });

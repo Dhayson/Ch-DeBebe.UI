@@ -12,6 +12,9 @@ const email = ref('');
 const senha = ref('');
 const carregando = ref(false);
 
+
+const redirectCode = sessionStorage.getItem('returnToInvite');
+
 const realizarCadastro = async () => {
     // Validação simples antes de enviar ao Back
     if (!nome.value || !email.value || !senha.value) {
@@ -36,7 +39,12 @@ const realizarCadastro = async () => {
         });
 
         // Redireciona para o login após o sucesso
-        router.push('/login');
+        if (redirectCode) {
+            sessionStorage.removeItem('returnToInvite');
+            router.push(`/convite/${redirectCode}`);
+        } else {
+            router.push('/login');
+        }
     } catch (error) {
         const msg = error.response?.data?.message || 'Erro ao criar conta. Tente outro e-mail.';
         toast.add({ severity: 'error', summary: 'Falha no Cadastro', detail: msg, life: 5000 });
