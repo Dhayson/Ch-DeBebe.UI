@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 
 public class PresenteService
@@ -99,10 +100,15 @@ public class PresenteService
         IFormFile imagem
     )
     {
-        var cha = await _db.ChasDeBebe.FindAsync(ChaDeBebeEventoId);
-        if (cha == null || cha.AdminId != AdminId)
+        var cha = await _db.ChasDeBebe.FirstOrDefaultAsync(cha => cha.Id == ChaDeBebeEventoId);
+        Console.WriteLine(ChaDeBebeEventoId);
+        if (cha == null)
         {
-            return (null, "Não Autorizado", 400);
+            return (null, "Não Autorizado 1", 400);
+        }
+        if (cha.AdminId != AdminId)
+        {
+            return (null, "Não Autorizado 2", 400);
         }
 
         var presenteExistente = await _db.Presentes.FindAsync(presenteId);

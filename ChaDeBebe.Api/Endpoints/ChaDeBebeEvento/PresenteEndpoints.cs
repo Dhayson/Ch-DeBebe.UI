@@ -67,7 +67,7 @@ public static class PresenteEndpoints
             var usuarioId = int.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier)!);
             var service = new PresenteService(db, config);
             (var result, string error, int code) = await service.AdicionarImagemPresenteAsync(
-                usuarioId, req.presenteId, req.ChaDeBebeEventoId, arquivo);
+                usuarioId, req.ChaDeBebeEventoId, req.presenteId, arquivo);
             if (code != 200)
             {
                 return Results.Json(new { Message = error }, JsonSerializerOptions.Default, null, code);
