@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -84,6 +85,8 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+builder.Services.AddHttpContextAccessor();
+
 var app = builder.Build();
 
 // Usar o CORS no app
@@ -111,6 +114,14 @@ app.UseHttpsRedirection();
 
 // Adicionar router
 app.MapAllEndpoints();
+
+// Configura pasta de imagens
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+        Path.Combine(builder.Environment.ContentRootPath, "./app/upload")),
+    RequestPath = "/app/upload" // Este será o prefixo na URL
+});
 
 app.Run();
 

@@ -10,6 +10,7 @@ const chaId = route.params.id; // Captura o ID da URL
 const detalhes = ref(null);
 const loading = ref(true);
 import { useConfirm } from "primevue/useconfirm";
+import { FileUpload } from 'primevue';
 
 const buscarDetalhes = async () => {
     try {
@@ -133,6 +134,64 @@ const copiarLink = () => {
     toast.add({ severity: 'info', summary: 'Copiado', detail: 'Link pronto para enviar!', life: 2000 });
 };
 
+const arquivoSelecionado = ref(null);
+const previewImagem = ref(null);
+const displayModalImagem = ref(false);
+
+// Função disparada quando o usuário escolhe um arquivo
+const aoSelecionarArquivo = (event) => {
+    const file = event.files[0]; // O PrimeVue coloca os arquivos em .files
+    if (file) {
+        arquivoSelecionado.value = file;
+        // Cria uma URL temporária para mostrar a imagem na tela antes de subir
+        previewImagem.value = URL.createObjectURL(file);
+    }
+};
+
+const abrirModalImagem = (presente) => {
+    displayModalImagem.value = true;
+    presenteIdAtual.value = presente.id;
+    arquivoSelecionado.value = null;
+    previewImagem.value = null;
+};
+
+// Resetar ao fechar o modal
+const fecharModalImagem = () => {
+    displayModalImagem.value = false;
+    arquivoSelecionado.value = null;
+    previewImagem.value = null;
+};
+
+const uploadImagem = async () => {
+    enviando.value = true;
+    
+    // Criamos o FormData
+    const formData = new FormData();
+    
+    // Adicionamos os campos de texto
+    formData.append('chaDeBebeEventoId', parseInt(route.params.id));
+    formData.append('presenteId', presenteIdAtual.value);
+
+    // Se houver um novo arquivo, adicionamos ao corpo
+    if (arquivoSelecionado.value) {
+        formData.append('arquivo', arquivoSelecionado.value);
+    }
+
+    try {
+        await api.post(`http://localhost:5000/api/presente/adicionar-imagem`, formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        });
+
+        toast.add({ severity: 'success', summary: 'Sucesso', detail: 'Presente salvo com imagem!' });
+        fecharModalImagem();
+        buscarDetalhes();
+    } catch (error) {
+        toast.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao fazer upload.' });
+    } finally {
+        enviando.value = false;
+    }
+};
+
 onMounted(buscarDetalhes);
 </script>
 
@@ -147,6 +206,32 @@ onMounted(buscarDetalhes);
         </div>
         <Button icon="pi pi-copy" label="Copiar" class="p-button-sm p-button-info" @click="copiarLink" />
     </div>
+    <Dialog v-model:visible="displayModalImagem" :header="'Upload Imagem'" :modal="true" class="p-fluid w-full max-w-30rem">
+        <div class="field">
+            <label class="font-bold">Imagem do Presente</label>
+            
+            <div v-if="previewImagem || novoPresente.pathImage" class="mb-3 flex justify-content-center">
+                <img :src="previewImagem || novoPresente.pathImage" 
+                    class="border-round shadow-2" 
+                    style="width: 150px h-150px; object-fit: cover" />
+            </div>
+
+            <FileUpload 
+                mode="basic" 
+                name="foto" 
+                accept="image/*" 
+                :maxFileSize="1000000" 
+                @select="aoSelecionarArquivo" 
+                chooseLabel="Escolher Foto"
+                class="p-button-outlined w-full"
+            />
+            <small class="text-500">Tamanho máximo: 1MB (JPG, PNG).</small>
+        </div>
+        <template #footer>
+            <Button label="Cancelar" icon="pi pi-times" text @click="fecharModalImagem" :disabled="enviando" />
+            <Button label="Enviar" icon="pi pi-upload" @click="uploadImagem" :loading="enviando" :disabled="!arquivoSelecionado" />
+        </template>
+    </Dialog>
     <Dialog v-model:visible="displayModal" :header="editando ? 'Editar Presente' : 'Novo Presente'" :modal="true" class="p-fluid w-full max-w-30rem">
         <div class="field">
             <label for="nome" class="font-bold">Nome do Presente</label>
@@ -218,6 +303,15 @@ onMounted(buscarDetalhes);
             </div>
 
             <DataTable :value="detalhes.presentes" responsiveLayout="stack" breakpoint="960px" stripedRows>
+                <Column header="Imagem">
+                    <template #body="slotProps">
+                        <img v-if="slotProps.data.pathImage" 
+                             :src="slotProps.data.pathImage" 
+                             class="border-round" 
+                             style="width: 50px; height: 50px; object-fit: cover" />
+                        <span v-else class="text-500">-</span>
+                    </template>
+                </Column>
                 <Column field="nome" header="Presente"></Column>
                 <Column field="quantidadeTotal" header="Qtd. Total"></Column>
                 <Column header="Restante">
@@ -238,6 +332,8 @@ onMounted(buscarDetalhes);
                     <template #body="slotProps">
                         <Button icon="pi pi-pencil" text rounded severity="secondary" 
                             @click="abrirEdicao(slotProps.data)"/>
+                        <Button icon="pi pi-image" text rounded severity="secondary" 
+                            @click="abrirModalImagem(slotProps.data)"/>
                         <Button icon="pi pi-trash" text rounded severity="danger"
                             @click="excluirPresente(slotProps.data.id)" />
                     </template>

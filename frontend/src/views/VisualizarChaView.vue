@@ -26,15 +26,12 @@ const carregarDados = async () => {
 
 const displayReservaModal = ref(false);
 const presenteSelecionado = ref(null);
-const quantidadeReserva = ref(1.0);
+const quantidadeReserva = ref(0.0);
 const enviandoReserva = ref(false);
-
-
-
 
 const prepararReserva = (presente) => {
     presenteSelecionado.value = presente;
-    quantidadeReserva.value = 1.0; // Reseta para 1
+    quantidadeReserva.value = 1.0; // Reseta para 1 como padrão
     displayReservaModal.value = true;
 };
 
@@ -93,7 +90,7 @@ onMounted(carregarDados);
                     <template #header>
                         <div class="relative">
                             <img :src="p.pathImage || 'https://placehold.co/400x300?text=Presente'" 
-                                 class="w-full h-15rem object-cover" />
+                                 class="w-full object-contain" />
                             <Tag v-if="p.quantidadeRestante === 0" value="Esgotado" severity="danger" class="absolute top-0 right-0 m-2" />
                         </div>
                     </template>
@@ -137,13 +134,14 @@ onMounted(carregarDados);
         </div>
 
         <div class="field text-center">
-            <label for="qtdReserva" class="block mb-2 font-bold">Quantas unidades deseja dar?</label>
+            <label for="qtdReserva" class="block mb-2 font-bold ">Quantas unidades deseja dar?</label>
+            <label for="qtdReserva" class="block mb-1">(Pode digitar um valor fracional para dividir o custo)</label>
             <InputNumber 
                 id="qtdReserva" 
                 v-model="quantidadeReserva" 
                 showButtons 
                 buttonLayout="horizontal" 
-                :min="1.0" 
+                :min="0.0" 
                 :max="presenteSelecionado?.quantidadeRestante"
                 incrementButtonIcon="pi pi-plus" 
                 decrementButtonIcon="pi pi-minus"

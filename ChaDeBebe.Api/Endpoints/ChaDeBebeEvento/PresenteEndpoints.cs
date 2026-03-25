@@ -77,6 +77,7 @@ public static class PresenteEndpoints
 
         group.MapGet("/presentes_cha", async (int chaDeBebeId, AppDbContext db, ClaimsPrincipal user) =>
         {
+            var baseUrl = $"http://localhost:5000/app/upload/presentes";
             var meusChas = await db.ChasDeBebe.AsNoTracking()
                 .Where(c => c.Id == chaDeBebeId)
                 .Select(c => new
@@ -91,10 +92,9 @@ public static class PresenteEndpoints
                         p.Nome,
                         p.Descricao,
                         p.LinkSugerido,
-                        p.PathImage,
+                        pathImage = string.IsNullOrEmpty(p.PathImage) ? null : $"{baseUrl}/{p.PathImage}",
                         p.Preco,
                         p.QuantidadeTotal,
-                        // WORKAROUND: É necessário chamar aqui ao invés da propriedade para evitar inconsistência
                         QuantidadeRestante = p.QuantidadeTotal - p.Reservas.Sum(r => r.Quantidade)
                     }),
                 })
