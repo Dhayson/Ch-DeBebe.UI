@@ -119,7 +119,7 @@ app.MapAllEndpoints();
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(
-        Path.Combine(builder.Environment.ContentRootPath, "./app/upload")),
+        Path.Combine(builder.Environment.ContentRootPath, builder.Configuration["UploadConfig:Path"] ?? ".app/upload")),
     RequestPath = "/app/upload" // Este será o prefixo na URL
 });
 

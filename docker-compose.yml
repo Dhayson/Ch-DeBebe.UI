@@ -15,6 +15,8 @@ services:
     restart: unless-stopped
 
   backend:
+    volumes:
+    - ./app/upload/presentes:/app/upload/presentes
     build:
       context: .
       dockerfile: ChaDeBebe.Api/Dockerfile
@@ -23,6 +25,8 @@ services:
       - ASPNETCORE_HTTP_PORTS=5000
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__DefaultConnection=Host=db-postgres;Database=ChaDeBebeDb;Username=usuario_admin;Password=SenhaSuperSegura123!
+      - StorageConfig__Path=/app/upload/presentes
+      - UploadConfig__Path=/app/upload
     depends_on:
       - db-postgres
     ports:

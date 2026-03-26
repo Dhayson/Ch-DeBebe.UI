@@ -26,5 +26,8 @@ ENV DOTNET_WATCH_RESTART_ON_RUDE_EDIT=true
 # Copia apenas os binários compilados do estágio anterior
 COPY --from=publish /app/publish .
 
+# Cria pasta para as imagens dos presentes
+RUN mkdir -p /app/upload/presentes && chmod 777 /app/upload/presentes
+
 # Define o ponto de entrada da aplicação
 ENTRYPOINT ["dotnet", "ChaDeBebe.Api.dll"]
