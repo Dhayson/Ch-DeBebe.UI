@@ -96,13 +96,6 @@ app.UseCors("WebAppPolicy");
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Prototipação: criar rapidamente o banco de dados
-using (var scope = app.Services.CreateScope())
-{
-    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    db.Database.EnsureCreated(); // Cria o banco e as tabelas se não existirem
-}
-
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
