@@ -3,7 +3,7 @@ version: "3.8"
 services:
   db-postgres:
     image: postgres:16-alpine # Versão Alpine é mais leve e segura
-    container_name: meuarquitetura-db
+    container_name: chadebebe-meuarquitetura-db
     environment:
       POSTGRES_USER: usuario_admin
       POSTGRES_PASSWORD: SenhaSuperSegura123!
