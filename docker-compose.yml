@@ -24,7 +24,7 @@ services:
     environment:
       - ASPNETCORE_HTTP_PORTS=5000
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Host=db-postgres;Database=ChaDeBebeDb;Username=usuario_admin;Password=SenhaSuperSegura123!
+      - ConnectionStrings__DefaultConnection=Host=chadebebe-meuarquitetura-db;Database=ChaDeBebeDb;Username=usuario_admin;Password=SenhaSuperSegura123!
       - StorageConfig__Path=/app/upload/presentes
       - UploadConfig__Path=/app/upload
     depends_on:
