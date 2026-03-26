@@ -123,6 +123,22 @@ app.UseStaticFiles(new StaticFileOptions
     RequestPath = "/app/upload" // Este será o prefixo na URL
 });
 
+// Migrations automáticas
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<AppDbContext>();
+        // Isso garante que o banco seja criado e as migrações aplicadas
+        context.Database.Migrate();
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Erro ao aplicar migrações: {ex.Message}");
+    }
+}
+
 app.Run();
 
 // Essencial para o WebApplicationFactory encontrar a API
