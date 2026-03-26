@@ -120,15 +120,22 @@ app.UseStaticFiles(new StaticFileOptions
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
-    try
+    bool success = false;
+    while (!success)
     {
-        var context = services.GetRequiredService<AppDbContext>();
-        // Isso garante que o banco seja criado e as migrações aplicadas
-        context.Database.Migrate();
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine($"Erro ao aplicar migrações: {ex.Message}");
+        success = true;
+        try
+        {
+            var context = services.GetRequiredService<AppDbContext>();
+            // Isso garante que o banco seja criado e as migrações aplicadas
+            context.Database.Migrate();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erro ao aplicar migrações: {ex.Message}");
+            success = false;
+            Thread.Sleep(5000);
+        }
     }
 }
 
