@@ -11,8 +11,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ChaDeBebe.Api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260323052432_PresentePreco")]
-    partial class PresentePreco
+    [Migration("20260326025845_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -125,7 +125,7 @@ namespace ChaDeBebe.Api.Migrations
 
                     b.HasIndex("UsuarioChaDeBebeUsuarioId", "UsuarioChaDeBebeChaDeBebeId");
 
-                    b.ToTable("Reserva");
+                    b.ToTable("Reservas");
                 });
 
             modelBuilder.Entity("Usuario", b =>
@@ -166,12 +166,9 @@ namespace ChaDeBebe.Api.Migrations
                     b.Property<int>("ChaDeBebeId")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("ChaDeBebeEventoId")
-                        .HasColumnType("integer");
-
                     b.HasKey("UsuarioId", "ChaDeBebeId");
 
-                    b.HasIndex("ChaDeBebeEventoId");
+                    b.HasIndex("ChaDeBebeId");
 
                     b.ToTable("UsuarioChaDeBebe");
                 });
@@ -231,9 +228,11 @@ namespace ChaDeBebe.Api.Migrations
 
             modelBuilder.Entity("UsuarioChaDeBebe", b =>
                 {
-                    b.HasOne("ChaDeBebeEvento", "ChaDeBebeEvento")
+                    b.HasOne("ChaDeBebeEvento", "ChaDeBebe")
                         .WithMany()
-                        .HasForeignKey("ChaDeBebeEventoId");
+                        .HasForeignKey("ChaDeBebeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Usuario", "Usuario")
                         .WithMany()
@@ -241,7 +240,7 @@ namespace ChaDeBebe.Api.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("ChaDeBebeEvento");
+                    b.Navigation("ChaDeBebe");
 
                     b.Navigation("Usuario");
                 });
