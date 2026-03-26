@@ -20,7 +20,7 @@ services:
     build:
       context: .
       dockerfile: ChaDeBebe.Api/Dockerfile
-    container_name: api
+    container_name: chadebebe-api
     environment:
       - ASPNETCORE_HTTP_PORTS=5000
       - ASPNETCORE_ENVIRONMENT=Development
@@ -35,7 +35,7 @@ services:
   frontend:
     build:
       context: frontend
-    container_name: ui
+    container_name: chadebebe-ui
     ports:
       - "5173:80"
     environment:
