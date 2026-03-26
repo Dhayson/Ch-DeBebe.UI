@@ -192,10 +192,26 @@ const uploadImagem = async () => {
     }
 };
 
+// Armazena quais IDs de presentes estão expandidos
+const expandedRows = ref({});
+
+const alternarExpansao = (data) => {
+    // Se já estiver aberto, fecha. Se estiver fechado, abre.
+    if (expandedRows.value[data.id]) {
+        const novasLinhas = { ...expandedRows.value };
+        delete novasLinhas[data.id];
+        expandedRows.value = novasLinhas;
+    } else {
+        // Se não estiver, adicionamos (abre)
+        expandedRows.value = { ...expandedRows.value, [data.id]: true };
+    }
+};
+
 onMounted(buscarDetalhes);
 </script>
 
 <template>
+    <div class="pt-4"></div>
     <div class="surface-card p-4 shadow-1 border-round mb-4 flex align-items-center justify-content-between bg-blue-50">
         <div class="flex align-items-center gap-3">
             <i class="pi pi-link text-blue-600 text-xl"></i>
@@ -281,13 +297,12 @@ onMounted(buscarDetalhes);
                 <div class="flex align-items-center justify-content-between">
                     <div>
                         <div v-if="!loading && detalhes" class="p-4">
-                            <div class="text-2xl">{{ detalhes.presentes.length }}</div>
-                                <div class="text-900 font-bold text-2xl">{{ detalhes.presentes.length }}</div>
-                            </div>
+                            <div class="text-2xl text-800">{{ detalhes.presentes.length }}</div>
+                        </div>
 
-                            <div v-else class="flex justify-content-center p-8">
-                                <ProgressSpinner />
-                            </div>
+                        <div v-else class="flex justify-content-center p-8">
+                            <ProgressSpinner />
+                        </div>
                         
                         <div class="text-500">Total Cadastrado</div>
                     </div>
@@ -302,7 +317,7 @@ onMounted(buscarDetalhes);
                 <Button label="Adicionar Presente" icon="pi pi-plus" size="small" severity="primary" @click="abrirModalCriacao" />
             </div>
 
-            <DataTable :value="detalhes.presentes" responsiveLayout="stack" breakpoint="960px" stripedRows>
+            <DataTable :value="detalhes.presentes" responsiveLayout="stack" breakpoint="960px" stripedRows v-model:expandedRows="expandedRows" dataKey="id">
                 <Column header="Imagem">
                     <template #body="slotProps">
                         <img v-if="slotProps.data.pathImage" 
@@ -338,6 +353,38 @@ onMounted(buscarDetalhes);
                             @click="excluirPresente(slotProps.data.id)" />
                     </template>
                 </Column>
+
+                <Column header="Ver reservas" style="width: 12rem">
+                    <template #body="slotProps">
+                        <div class="flex gap-2">
+                            <Button 
+                                icon="pi pi-users" 
+                                label="Reservas" 
+                                class="p-button-sm p-button-info p-button-outlined"
+                                @click="alternarExpansao(slotProps.data)" 
+                            />
+                        </div>
+                    </template>
+                </Column>
+
+                <template #expansion="slotProps">
+                <div class="p-4 bg-bluegray-50 border-round-sm shadow-inner">
+                    <DataTable :value="slotProps.data.reservas" class="p-datatable-sm" v-if="slotProps.data.reservas?.length">
+                    <Column field="nome" header="Convidado" />
+                    <Column field="quantidade" header="Quantidade" />
+                    <Column field="dataReserva" header="Data">
+                        <template #body="res">
+                            {{ new Date(res.data.dataReserva).toLocaleDateString() }}
+                        </template>
+                    </Column>
+                    </DataTable>
+                    
+                    <div v-else class="text-center p-3 text-500 italic">
+                    Nenhuma reserva foi feita para este presente ainda.
+                    </div>
+                </div>
+                </template>
+                
             </DataTable>
         </div>
     </div>

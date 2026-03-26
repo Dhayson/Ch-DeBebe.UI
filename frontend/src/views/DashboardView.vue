@@ -58,7 +58,7 @@ onMounted(carregarChasInscrito);
 <template>
     <div class="p-4">
         <div class="flex justify-content-between align-items-center mb-4">
-            <h1 class="text-2xl font-bold m-0">Meus Eventos</h1>
+            <h1 class="text-2xl font-bold m-0 text-900">Meus Eventos</h1>
             <Button label="Novo Chá" icon="pi pi-plus" @click="displayModal = true" />
         </div>
 
@@ -81,7 +81,7 @@ onMounted(carregarChasInscrito);
         <div class="flex gap-6">
             <!-- Meus Chás -->
             <div>
-                <h2 class="text-lg font-bold mb-4">Meus Chás</h2>
+                <h2 class="text-lg font-bold mb-4 text-900">Meus Chás</h2>
                 <div v-if="loading" class="flex justify-content-center p-8">
                     <ProgressSpinner />
                 </div>
@@ -126,7 +126,7 @@ onMounted(carregarChasInscrito);
 
             <!-- Chás Inscritos -->
             <div>
-            <h2 class="text-lg font-bold mb-4">Chás que Estou Inscrito</h2>
+            <h2 class="text-lg font-bold mb-4 text-900">Chás que Estou Inscrito</h2>
                 <div v-if="loading" class="flex justify-content-center p-8">
                     <ProgressSpinner />
                 </div>

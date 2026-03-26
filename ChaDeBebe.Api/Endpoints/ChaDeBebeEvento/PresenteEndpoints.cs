@@ -95,7 +95,14 @@ public static class PresenteEndpoints
                         pathImage = string.IsNullOrEmpty(p.PathImage) ? null : $"{baseUrl}/{p.PathImage}",
                         p.Preco,
                         p.QuantidadeTotal,
-                        QuantidadeRestante = p.QuantidadeTotal - p.Reservas.Sum(r => r.Quantidade)
+                        QuantidadeRestante = p.QuantidadeTotal - p.Reservas.Sum(r => r.Quantidade),
+                        Reservas = p.Reservas.Select(r => new
+                        {
+                            r.Id,
+                            r.DataReserva,
+                            r.Quantidade,
+                            r.Usuario!.Nome
+                        })
                     }),
                 })
                 .FirstOrDefaultAsync();

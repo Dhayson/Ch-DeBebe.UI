@@ -8,14 +8,9 @@ const confirm = useConfirm();
 
 const items = ref([
     {
-        label: 'Dashboard',
+        label: 'Página Inicial',
         icon: 'pi pi-home',
         command: () => router.push('/dashboard')
-    },
-    {
-        label: 'Meus Eventos',
-        icon: 'pi pi-calendar',
-        command: () => router.push('/chas_inscrito')
     }
 ]);
 
